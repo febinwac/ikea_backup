@@ -1,0 +1,16 @@
+{
+	"data": {
+		"title": "Login to your IKEA account",
+		"sub_title": "Deleting your account will erase all data related to your account.The following data will be lost",
+		"content_list": [{
+				"content": "Your previous orders, purchase, items in the cart and returns history will be removed from the application"
+			},
+			{
+				"content": "Any gift cards linked to your account will not be accessible"
+			},
+			{
+				"content": "To place a new order you need to sign up with a new account."
+			}
+		]
+	}
+}

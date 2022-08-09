@@ -1,0 +1,22 @@
+[
+  {
+    "icon": "assets/icons/credit_card_icon.png",
+    "title": "Payment methods",
+    "content": "We accepts both credit and debit card payments from Visa and Master."
+  },
+  {
+    "icon": "assets/icons/return_icon.png",
+    "title": "It’s ok to change your mind",
+    "content": "Please check our return policy as we have made some some updates due to the COVID 19 situation."
+  },
+  {
+    "icon": "assets/icons/delivery_truck_icon.png",
+    "title": "Get it delivered",
+    "content": "Safe and contact less delivery according to government permission."
+  },
+  {
+    "icon": "assets/icons/info_icon.png",
+    "title": "We are here to help",
+    "content": "Contact us. Happy to answer all your queries at "
+  }
+]
