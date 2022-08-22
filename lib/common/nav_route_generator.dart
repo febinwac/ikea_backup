@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sfm_module/views/category/category_detail_screen.dart';
+import 'package:sfm_module/views/checkout/select_address.dart';
 
 import '../views/auth_screen/login.dart';
 import '../views/cart/cart_info_screen.dart';
@@ -19,6 +20,7 @@ class NavRouteGenerator {
       categoryDetailsRoute: (context) => CategoryDetailScreen(catId: ''),
       cartInfoRoute: (context) => CartInfoScreen(),
       loginRoute: (context) => LoginScreen(),
+      savedAddressesRoute:(context)=>SelectAddressScreen()
     };
   }
 }

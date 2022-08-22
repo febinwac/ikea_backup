@@ -33,16 +33,17 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen>
     with WidgetsBindingObserver, TickerProviderStateMixin {
   late final AnimationController _animationController;
-  // late final PersistentTabController controller;
+
+  late final PersistentTabController controller;
 
   @override
   void initState() {
     final provider = context.read<HomeProvider>();
-    provider.controller =
-        PersistentTabController(initialIndex: widget.initial ?? 0);
+    controller = PersistentTabController(initialIndex: widget.initial ?? 0);
     _animationController = AnimationController(vsync: this);
     super.initState();
   }
+
   @override
   void dispose() {
     if (mounted) {
@@ -53,52 +54,50 @@ class _MainScreenState extends State<MainScreen>
 
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
-    return Consumer2<HomeProvider, CartProvider>(
-      builder: (context, homeModel, cartModel, Widget? child) {
-        return PersistentTabView(
-          context,
-          controller: homeModel.controller,
-          screens: _buildScreens(),
-          items: _navBarsItems(homeModel.controller, cartModel),
-          confineInSafeArea: true,
-          backgroundColor: Colors.white,
-          onItemSelected: (int val) {
-            setState(() {
-              if (_animationController.isCompleted) {
-                _animationController.reverse();
-              } else {
-                _animationController.forward();
-              }
-              homeModel.updateTabIndex(val);
-            });
-            getInitialDataByIndex(homeModel.controller);
-          },
-          decoration: NavBarDecoration(
-              border: Border(
-                  top: BorderSide(color: HexColor("#DEDEDE"), width: 1.0))),
-          handleAndroidBackButtonPress: true,
-          resizeToAvoidBottomInset: false,
-          stateManagement: false,
-          navBarHeight: MediaQuery.of(context).viewInsets.bottom > 0
-              ? 0.0
-              : kBottomNavigationBarHeight,
-          hideNavigationBarWhenKeyboardShows: true,
-          margin: const EdgeInsets.all(0.0),
-          padding:
-              const NavBarPadding.only(bottom: 5, left: 10, right: 10, top: 5),
-          popActionScreens: PopActionScreensType.all,
-          hideNavigationBar: false,
-          screenTransitionAnimation: const ScreenTransitionAnimation(
-            animateTabTransition: false,
-            curve: Curves.ease,
-            duration: Duration(milliseconds: 200),
-          ),
-          navBarStyle:
-              NavBarStyle.simple, // Choose the nav bar style with this property
-        );
+    debugPrint("Entered build $context");
+
+    return PersistentTabView(
+      context,
+      controller: controller,
+      screens: _buildScreens(),
+      items: _navBarsItems(),
+      confineInSafeArea: true,
+      backgroundColor: Colors.white,
+      onItemSelected: (int val) {
+        setState(() {
+          if (_animationController.isCompleted) {
+            _animationController.reverse();
+          } else {
+            _animationController.forward();
+          }
+          // homeModel.updateTabIndex(val);
+        });
+        getInitialDataByIndex();
       },
+      decoration: NavBarDecoration(
+          border:
+              Border(top: BorderSide(color: HexColor("#DEDEDE"), width: 1.0))),
+      handleAndroidBackButtonPress: true,
+      resizeToAvoidBottomInset: false,
+      stateManagement: false,
+      navBarHeight: MediaQuery.of(context).viewInsets.bottom > 0
+          ? 0.0
+          : kBottomNavigationBarHeight,
+      hideNavigationBarWhenKeyboardShows: true,
+      margin: const EdgeInsets.all(0.0),
+      padding: const NavBarPadding.only(bottom: 5, left: 10, right: 10, top: 5),
+      popActionScreens: PopActionScreensType.all,
+      hideNavigationBar: false,
+      screenTransitionAnimation: const ScreenTransitionAnimation(
+        animateTabTransition: false,
+        curve: Curves.ease,
+        duration: Duration(milliseconds: 200),
+      ),
+      navBarStyle:
+          NavBarStyle.simple, // Choose the nav bar style with this property
     );
   }
 
@@ -106,8 +105,7 @@ class _MainScreenState extends State<MainScreen>
     return [HomeScreen(), CategoryScreen(), AccountScreen(), CartScreen()];
   }
 
-  List<PersistentBottomNavBarItem> _navBarsItems(
-      PersistentTabController controller, CartProvider cartModel) {
+  List<PersistentBottomNavBarItem> _navBarsItems() {
     return [
       PersistentBottomNavBarItem(
         icon: controller.index == 0
@@ -188,48 +186,53 @@ class _MainScreenState extends State<MainScreen>
         ),
       ),
       PersistentBottomNavBarItem(
-        icon: Badge(
-          toAnimate: false,
-          elevation: 0,
-          shape: BadgeShape.circle,
-          badgeColor:
-              cartModel.cartCount == 0 ? HexColor(white) : HexColor(darkYellow),
-          padding: const EdgeInsets.all(0.0),
-          borderRadius: BorderRadius.circular(3),
-          position: cartModel.cartCount == 0
-              ? BadgePosition.bottomEnd()
-              : controller.index == 3
-                  ? BadgePosition.topEnd(top: 6.h, end: -2.w)
-                  : BadgePosition.topEnd(top: 6.h, end: -8.w),
-          badgeContent: Container(
-            height: 18,
-            width: 18,
-            alignment: Alignment.center,
-            child: cartModel.cartCount == 0
-                ? const Text("")
-                : Text("${cartModel.cartCount}",
-                    style: FontStyle.productCurrencyStyle),
-          ),
-          child: controller.index == 3
-              ? SizedBox(
-                  height: 35.h,
-                  width: 35.w,
-                  child: Lottie.asset(
-                    Constants.lottieCartIcon,
-                    controller: _animationController,
-                    onLoaded: (composition) {
-                      _animationController.duration = composition.duration;
-                    },
-                  ),
-                )
-              : Image.asset(
-                  Constants.cartIcon,
-                  height: 23.w,
-                  width: 23.w,
-                  color: controller.index == 3
-                      ? HexColor('#FD930A')
-                      : HexColor('#7F7F7F'),
-                ),
+        icon: Consumer2<HomeProvider, CartProvider>(
+          builder: (ctx, homeModel, cartModel, _) {
+            return Badge(
+              toAnimate: false,
+              elevation: 0,
+              shape: BadgeShape.circle,
+              badgeColor: cartModel.cartCount == 0
+                  ? HexColor(white)
+                  : HexColor(darkYellow),
+              padding: const EdgeInsets.all(0.0),
+              borderRadius: BorderRadius.circular(3),
+              position: cartModel.cartCount == 0
+                  ? BadgePosition.bottomEnd()
+                  : controller.index == 3
+                      ? BadgePosition.topEnd(top: 6.h, end: -2.w)
+                      : BadgePosition.topEnd(top: 6.h, end: -8.w),
+              badgeContent: Container(
+                height: 18,
+                width: 18,
+                alignment: Alignment.center,
+                child: cartModel.cartCount == 0
+                    ? const Text("")
+                    : Text("${cartModel.cartCount}",
+                        style: FontStyle.productCurrencyStyle),
+              ),
+              child: controller.index == 3
+                  ? SizedBox(
+                      height: 35.h,
+                      width: 35.w,
+                      child: Lottie.asset(
+                        Constants.lottieCartIcon,
+                        controller: _animationController,
+                        onLoaded: (composition) {
+                          _animationController.duration = composition.duration;
+                        },
+                      ),
+                    )
+                  : Image.asset(
+                      Constants.cartIcon,
+                      height: 23.w,
+                      width: 23.w,
+                      color: controller.index == 3
+                          ? HexColor('#FD930A')
+                          : HexColor('#7F7F7F'),
+                    ),
+            );
+          },
         ),
         routeAndNavigatorSettings: RouteAndNavigatorSettings(
           initialRoute: mainPageRoute,
@@ -239,7 +242,7 @@ class _MainScreenState extends State<MainScreen>
     ];
   }
 
-  void getInitialDataByIndex(PersistentTabController controller) {
+  void getInitialDataByIndex() {
     switch (controller.index) {
       case 3:
         Future.microtask(() => context.read<CartProvider>()

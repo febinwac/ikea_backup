@@ -7,6 +7,7 @@ import 'package:sfm_module/views/auth_screen/registration_screen.dart';
 import 'package:sfm_module/views/auth_screen/verify_otp.dart';
 import 'package:sfm_module/views/cart/cart_info_screen.dart';
 import 'package:sfm_module/views/category/category_detail_screen.dart';
+import 'package:sfm_module/views/checkout/select_address.dart';
 import 'package:sfm_module/views/main_view/main_screen.dart';
 
 import '../views/product_details/product_detail_screen.dart';
@@ -89,6 +90,18 @@ class NavRoutes {
       context,
       screen: RegistrationScreen(mobileNumber: mobileNumber),
       settings: const RouteSettings(name: verifyOtpRoute),
+      withNavBar: withNav, // OPTIONAL VALUE. True by default.
+      pageTransitionAnimation: PageTransitionAnimation.cupertino,
+    );
+  }
+
+
+  static Future<dynamic> navToSelectAddressScreen(BuildContext context,
+      {bool withNav = true}) {
+    return pushNewScreenWithRouteSettings(
+      context,
+      screen: SelectAddressScreen(),
+      settings: const RouteSettings(name: selectAddressRoute),
       withNavBar: withNav, // OPTIONAL VALUE. True by default.
       pageTransitionAnimation: PageTransitionAnimation.cupertino,
     );

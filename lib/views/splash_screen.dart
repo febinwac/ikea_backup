@@ -167,11 +167,7 @@ class _SplashScreenState extends State<SplashScreen> {
       AppData.cartId = await PreferenceUtils().getCartId();
 
       GraphQLClientConfiguration.instance
-          .config(
-              context: context,
-              token: AppData.accessToken,
-              store: AppData.storeCode,
-              region: AppData.region)
+          .config(context: context)
           .then((bool value) async {
         if (value) {
           await Future.delayed(const Duration(seconds: 2));
@@ -183,8 +179,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   .then((cartId) {
                 Future.microtask(() => context.read<CartProvider>()
                   ..cartInit()
-                  ..getCartList(context)
-                      .then((cartCount) {
+                  ..getCartList(context).then((cartCount) {
                     if (AppData.accessToken.trim() == "Bearer" ||
                         AppData.accessToken.isEmpty) {
                       NavRoutes.navRemoveUntilMainPage(context);

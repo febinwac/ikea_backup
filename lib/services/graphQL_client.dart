@@ -7,13 +7,12 @@ import '../common/preference_utils.dart';
 import 'app_data.dart';
 import 'custom_auth_link.dart';
 
-
 class GraphQLClientConfiguration {
   //init
   GraphQLClientConfiguration._privateConstructor();
 
   static final GraphQLClientConfiguration _instance =
-  GraphQLClientConfiguration._privateConstructor();
+      GraphQLClientConfiguration._privateConstructor();
 
   static GraphQLClientConfiguration get instance => _instance;
   static GraphQLClient? _graphClient;
@@ -21,38 +20,28 @@ class GraphQLClientConfiguration {
   static GraphQLClient? get graphQL => _graphClient;
 
   //config
-  Future<bool> config(
-      {String? token="",
-        BuildContext? context,
-        String? store="",
-        String? region=""}) async {
+  Future<bool> config({
+    BuildContext? context,
+  }) async {
     String baseUrl = await PreferenceUtils().getBaseUrl();
-    _showQueryCalls(
-        "GraphQl initialized with token as-->$token and URL as $baseUrl");
+    String? token = await PreferenceUtils().getAccessToken();
+    String? region = await PreferenceUtils().getRegion();
+    String? storeCode = await PreferenceUtils().getStoreCode();
+
 
     final HttpLink _link = HttpLink(
       baseUrl,
     );
 
     final CustomAuthLink authLink = CustomAuthLink(getToken: () async {
-      String? _token = token!.isNotEmpty
-          ? token
-          : await PreferenceUtils().getAccessToken();
-      return "Bearer $_token";
+      return "Bearer $token";
     }, getStore: () async {
-      String? storeCode = store!.isNotEmpty
-          ? store
-          : await PreferenceUtils().getStoreCode();
       return "dfc";
     }, getRegion: () async {
-      String? _region = region!.isNotEmpty
-          ? region
-          : await PreferenceUtils().getRegion();
-      return _region;
+      return region;
     });
     final Link link = authLink.concat(_link);
-    _graphClient =
-        GraphQLClient(cache: GraphQLCache(), link: link);
+    _graphClient = GraphQLClient(cache: GraphQLCache(), link: link);
     return _graphClient != null ? true : false;
   }
 
@@ -62,11 +51,11 @@ class GraphQLClientConfiguration {
     try {
       final QueryResult resp = await (_graphClient!
           .query(QueryOptions(
-          document: gql(query), fetchPolicy: FetchPolicy.networkOnly))
+              document: gql(query), fetchPolicy: FetchPolicy.networkOnly))
           .timeout(const Duration(seconds: 60), onTimeout: () {
         throw NetworkException(
             message: 'Check your internet connection',
-            uri: Uri(path: AppData.baseUrl + 'graphql'));
+            uri: Uri(path: '${AppData.baseUrl}graphql'));
       }));
       if (resp.exception != null && resp.data == null) {
         if (resp.exception?.graphqlErrors != null &&
@@ -79,10 +68,9 @@ class GraphQLClientConfiguration {
             'message': resp.exception?.graphqlErrors[0].message ??
                 'Something went wrong'
           };
-        }
-        else {
+        } else {
           _showQueryCalls(
-              " QUERY EXCEPTION 2--> ${resp.exception?.linkException?.originalException??'Something went wrong'}");
+              " QUERY EXCEPTION 2--> ${resp.exception?.linkException?.originalException ?? 'Something went wrong'}");
 
           return <String, dynamic>{
             'status': 'error',
@@ -111,10 +99,10 @@ class GraphQLClientConfiguration {
 
       final QueryResult resp = await (_graphClient!
           .mutate(MutationOptions(
-          document: gql(query),
-          fetchPolicy: FetchPolicy.networkOnly,
-          variables: variables ?? {},
-          errorPolicy: ErrorPolicy.all))
+              document: gql(query),
+              fetchPolicy: FetchPolicy.networkOnly,
+              variables: variables ?? {},
+              errorPolicy: ErrorPolicy.all))
           .timeout(const Duration(seconds: 60), onTimeout: () {
         throw NetworkException(
             message: 'Check your internet connection',
@@ -136,14 +124,15 @@ class GraphQLClientConfiguration {
                 'Something went wrong'
           };
         } else {
-          if (resp.exception!.linkException!=null && resp.exception?.linkException?.originalException!=null) {
+          if (resp.exception!.linkException != null &&
+              resp.exception?.linkException?.originalException != null) {
             _showQueryCalls(
-                " MUTATION EXCEPTION 2--> ${resp.exception?.linkException?.originalException??'Something went wrong'}");
+                " MUTATION EXCEPTION 2--> ${resp.exception?.linkException?.originalException ?? 'Something went wrong'}");
 
             return <String, dynamic>{
               'status': 'error',
-              'message':
-              resp.exception?.linkException?.originalException ?? 'Something went wrong'
+              'message': resp.exception?.linkException?.originalException ??
+                  'Something went wrong'
             };
           }
 
@@ -174,7 +163,6 @@ class GraphQLClientConfiguration {
 
 typedef GetToken = Future<String> Function();
 typedef GetStoreCode = Future<String> Function();
-
 
 // import 'dart:async';
 //

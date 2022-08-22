@@ -25,13 +25,9 @@ class PreferenceUtils {
   static const String email = "email";
   static const String customerPhone = "customer_phone";
 
-  static setStringToSF(String key, String? val) async {
+  static setStringToSF(String key, String val) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (key == cartId && val != null) {
       prefs.setString(key, val);
-    } else if (key != cartId) {
-      prefs.setString(key, val!);
-    } else {}
   }
 
   static setIntToSF(String key, int val) async {
@@ -96,13 +92,12 @@ class PreferenceUtils {
     return null;
   }
 
-  static remove(String key) async {
+ static Future<void> remove(String key) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var data = prefs.getString(key);
     if (data != null) {
       await prefs.remove(key);
     }
-    return null;
   }
 
   getAccessToken() async {

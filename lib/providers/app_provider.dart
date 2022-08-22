@@ -18,6 +18,7 @@ import '../models/nationality_living_model.dart';
 import '../models/otp_model.dart';
 import '../models/registration_data_model.dart';
 import '../models/revoke_data_model.dart';
+import '../services/graphQL_client.dart';
 import 'cart_provider.dart';
 
 class AppDataProvider with ChangeNotifier, ProviderHelperClass {
@@ -30,6 +31,7 @@ class AppDataProvider with ChangeNotifier, ProviderHelperClass {
   bool isFemaleSelected = false;
   bool smsPreferred = false;
   bool emailPreferred = false;
+  bool isLoggedIn = false;
 
   ///join IKEA Family....
   List<String> preferredCommunicationChecked = [];
@@ -45,7 +47,7 @@ class AppDataProvider with ChangeNotifier, ProviderHelperClass {
   ///verify OTP
   bool isInvalid = false;
 
-  Color statusBarColor=Colors.white;
+  Color statusBarColor = Colors.white;
 
   Future<String> fetchCartId(BuildContext context) async {
     String cartId = "";
@@ -174,7 +176,7 @@ class AppDataProvider with ChangeNotifier, ProviderHelperClass {
       } else {
         Future.microtask(() {
           Check.checkException(_resp, context,
-              onError: () {}, onAuthError: (value) {});
+              onError: (val) {}, onAuthError: (value) {});
         });
       }
     } else {
@@ -257,7 +259,8 @@ class AppDataProvider with ChangeNotifier, ProviderHelperClass {
         } else {
           Future.microtask(() {
             Check.checkException(_resp, context,
-                onError: (value) {}, onAuthError: (value) {}, noCustomer: (val) {
+                onError: (value) {},
+                onAuthError: (value) {}, noCustomer: (val) {
               if (val != null && val) {
                 sendRegistrationOtp(
                     context: context, value: value, isResend: false);
@@ -311,7 +314,8 @@ class AppDataProvider with ChangeNotifier, ProviderHelperClass {
             isInvalid = false;
             RegistrationUsingOtp registrationUsingOtp =
                 RegistrationUsingOtp.fromJson(resp['loginUsingOtp']);
-            print("Verify using otp ${registrationUsingOtp.customer}");
+            print(
+                "Verify using otp ${registrationUsingOtp.customer?.firstname ?? ""}");
             saveCustomerDetails(registrationUsingOtp.customer);
             setPreferenceKey(context, registrationUsingOtp);
             updateLoadState(LoaderState.loaded);
@@ -471,7 +475,7 @@ class AppDataProvider with ChangeNotifier, ProviderHelperClass {
       } else {
         Future.microtask(() {
           Check.checkException(_resp, context,
-              onError: () {}, onAuthError: (value) {});
+              onError: (val) {}, onAuthError: (value) {});
         });
       }
     } else {
@@ -495,13 +499,14 @@ class AppDataProvider with ChangeNotifier, ProviderHelperClass {
         await PreferenceUtils.setStringToSF(
             PreferenceUtils.cartId, mergeCartData.mergeCarts?.id ?? "");
         AppData.cartId = mergeCartData.mergeCarts?.id ?? "";
+        updateLoggedInState(true);
         Future.microtask(() {
-          NavRoutes.navRemoveUntilMainPage(context);
+          NavRoutes.navRemoveBottomNavMainPage(context);
         });
       } else {
         Future.microtask(() {
           Check.checkException(_resp, context,
-              onError: () {}, onAuthError: (value) {});
+              onError: (val) {}, onAuthError: (value) {});
         });
       }
     } else {
@@ -599,7 +604,12 @@ class AppDataProvider with ChangeNotifier, ProviderHelperClass {
       AppData.accessToken = registrationUsingOtp.token ?? '';
       await PreferenceUtils.setStringToSF(
           PreferenceUtils.prefAuthToken, registrationUsingOtp.token ?? '');
-      getCustomerCartId(context: context);
+      GraphQLClientConfiguration.instance.config().then((value) {
+        if (value) {
+          getCustomerCartId(context: context);
+        }
+      });
+
       notifyListeners();
     }
   }
@@ -608,6 +618,7 @@ class AppDataProvider with ChangeNotifier, ProviderHelperClass {
     if (customer != null) {
       await PreferenceUtils.setStringToSF(
           PreferenceUtils.prefUsername, customer.firstname ?? '');
+      AppData.name = customer.firstname ?? '';
       await PreferenceUtils.setStringToSF(
           PreferenceUtils.customerPhone, customer.mobileNumber ?? '');
     }
@@ -710,22 +721,41 @@ class AppDataProvider with ChangeNotifier, ProviderHelperClass {
   }
 
   Future<void> logOut(BuildContext context) async {
+    updateLoadState(LoaderState.loading);
     AppData().clearInfo();
-    PreferenceUtils.remove(PreferenceUtils.prefAuthToken);
-    PreferenceUtils.remove(PreferenceUtils.prefIsLoggedin);
-    PreferenceUtils.remove(PreferenceUtils.prefUsername);
-    PreferenceUtils.remove(PreferenceUtils.recentLocation);
-    PreferenceUtils.remove(PreferenceUtils.customerCartId);
-    PreferenceUtils.remove(PreferenceUtils.cartId);
-    PreferenceUtils.remove(PreferenceUtils.phone);
-    PreferenceUtils.remove(PreferenceUtils.currency);
-    PreferenceUtils.remove(PreferenceUtils.addToCartQuantity);
-    PreferenceUtils.remove(PreferenceUtils.addToCartProduct);
+    await PreferenceUtils.remove(PreferenceUtils.prefAuthToken);
+    await PreferenceUtils.remove(PreferenceUtils.prefIsLoggedin);
+    await PreferenceUtils.remove(PreferenceUtils.prefUsername);
+    await PreferenceUtils.remove(PreferenceUtils.recentLocation);
+    await PreferenceUtils.remove(PreferenceUtils.customerCartId);
+    await PreferenceUtils.remove(PreferenceUtils.customerPhone);
+    await PreferenceUtils.remove(PreferenceUtils.cartId);
+    await PreferenceUtils.remove(PreferenceUtils.phone);
+    await PreferenceUtils.remove(PreferenceUtils.currency);
+    await PreferenceUtils.remove(PreferenceUtils.addToCartQuantity);
+    await PreferenceUtils.remove(PreferenceUtils.addToCartProduct);
     context.read<CartProvider>().updateCartCount(0);
+    context.read<AppDataProvider>().updateLoggedInState(false);
+    GraphQLClientConfiguration.instance.config(context: context).then((value) {
+      if (value) {
+        Future.microtask(
+            () => context.read<AppDataProvider>().createEmptyCart(context));
+        Future.microtask(
+            () => context.read<AppDataProvider>().getCountryInfo(context));
+      }
+    });
+    updateLoadState(LoaderState.loaded);
     notifyListeners();
   }
-  updateStatusBarColor(Color color){
+
+  updateStatusBarColor(Color color) {
     statusBarColor = color;
+    notifyListeners();
+  }
+
+  void updateLoggedInState(bool val) {
+    debugPrint("logged state $val");
+    isLoggedIn = val;
     notifyListeners();
   }
 }

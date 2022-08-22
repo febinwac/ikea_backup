@@ -17,8 +17,3 @@ abstract class ProviderHelperClass {
   void updateLoadState(LoaderState state);
 }
 
-abstract class TabHelperClass {
-  PersistentTabController controller = PersistentTabController(initialIndex: 0);
-
-  void updateTabIndex(int index);
-}

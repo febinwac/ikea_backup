@@ -4,8 +4,9 @@ import '../../common/colors.dart';
 
 class DividerView extends StatelessWidget {
   final EdgeInsetsGeometry? edgeInsetsGeometry;
-
-  const DividerView({Key? key, this.edgeInsetsGeometry}) : super(key: key);
+// double right;
+// double left;
+   const DividerView({Key? key, this.edgeInsetsGeometry}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

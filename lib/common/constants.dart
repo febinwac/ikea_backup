@@ -42,6 +42,7 @@ class Constants {
   static const String callUs = "Call us";
   static const String help = "Help";
   static const String address = "Address";
+  static const String savedAddresses="Saved addresses";
   static const String selectAddress = "Address not selected";
   static const String deliverTo = "Deliver to";
   static const String chooseAnAddress = "Choose an address";
@@ -69,7 +70,7 @@ class Constants {
   static const String city = "City";
   static const String region = "Region";
   static const String saveAs = "Save as";
-  static const String saveAddress = "Save address";
+  static const String saveAddress = "Save addresses";
   static const String isDefaultAddress = "Set as default address";
   static const String numberIsInvalid = 'Card is invalid';
   static const String pay = 'Validate';

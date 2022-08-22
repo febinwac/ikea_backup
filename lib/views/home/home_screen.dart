@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:sfm_module/common/common_loader.dart';
+import 'package:sfm_module/providers/cart_provider.dart';
 
 import '../../common/common_error_page.dart';
 import '../../common/constants.dart';
@@ -22,6 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     Future.microtask(() => context.read<HomeProvider>().getHomeData(context));
+    Future.microtask(() => context.read<CartProvider>().getCartList(context));
     super.initState();
   }
 

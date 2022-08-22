@@ -6,3 +6,5 @@ const String categoryDetailsRoute = '/categoryDetailsRoute';
 const String cartInfoRoute = '/cartInfoRoute';
 const String loginRoute = '/loginRoute';
 const String verifyOtpRoute = '/verifyOtpRoute';
+const String selectAddressRoute = '/selectAddressRoute';
+const String savedAddressesRoute='/savedAddressesRoute';

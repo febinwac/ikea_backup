@@ -9,6 +9,7 @@ import 'package:sfm_module/common/font_styles.dart';
 import 'package:sfm_module/common/nav_route.dart';
 import 'package:sfm_module/providers/app_provider.dart';
 import 'package:sfm_module/services/app_data.dart';
+import 'package:sfm_module/services/graphQL_client.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../common/constants.dart';
@@ -30,7 +31,6 @@ class _AccountScreenState extends State<AccountScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print("Access Token ${AppData.accessToken}");
     return ScreenUtilInit(
         designSize: const Size(375, 812),
         minTextAdapt: true,
@@ -41,9 +41,14 @@ class _AccountScreenState extends State<AccountScreen> {
             backgroundColor: Colors.white,
             body: Padding(
               padding: EdgeInsets.all(20.h),
-              child: AppData.accessToken.isEmpty
-                  ? guestWidget()
-                  : loggedInWidget(),
+              child:
+                  Consumer<AppDataProvider>(builder: (ctx, appDataProvider, _) {
+                debugPrint(
+                    "Consumer logged state ${appDataProvider.isLoggedIn}");
+                return appDataProvider.isLoggedIn
+                    ? loggedInWidget()
+                    : guestWidget();
+              }),
             ),
           );
         });
@@ -250,7 +255,9 @@ class _AccountScreenState extends State<AccountScreen> {
           height: 80,
           child: Center(
             child: ListTile(
-              onTap: () {},
+              onTap: () {
+                NavRoutes.navToSelectAddressScreen(context);
+              },
               leading: Padding(
                   padding: EdgeInsets.only(left: 20),
                   child: Text(Constants.savedAddress,
@@ -318,12 +325,6 @@ class _AccountScreenState extends State<AccountScreen> {
                                 await context
                                     .read<AppDataProvider>()
                                     .logOut(context);
-                                Future.microtask(() => context
-                                    .read<AppDataProvider>()
-                                    .createEmptyCart(context));
-                                Future.microtask(() => context
-                                    .read<AppDataProvider>()
-                                    .getCountryInfo(context));
                               }
                             });
                           },

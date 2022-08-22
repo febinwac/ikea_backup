@@ -1386,7 +1386,7 @@ mutation {
     return GraphQLClientConfiguration.instance.query(query);
   }
 
-  Future<dynamic> getAddressDetails() async {
+  Future<dynamic> getAddressList() async {
     String query = '''
   query{
 

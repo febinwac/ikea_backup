@@ -11,7 +11,7 @@ import '../models/home_model.dart';
 import '../views/home/home_category_tile.dart';
 import '../views/home/home_main_banners.dart';
 
-class HomeProvider with ChangeNotifier, ProviderHelperClass, TabHelperClass {
+class HomeProvider with ChangeNotifier, ProviderHelperClass {
   int carouselIndex = 0;
   List<Widget> widgetList = [];
   late Customcms homeModelData;
@@ -50,7 +50,7 @@ class HomeProvider with ChangeNotifier, ProviderHelperClass, TabHelperClass {
         case Constants.categories:
           widgetList.add(HomeCategoryStrip(
             updateTabIndex: () {
-              updateTabIndex(1);
+              // updateTabIndex(1);
             },
             categories: content[i].categories ?? [],
           ));
@@ -90,9 +90,9 @@ class HomeProvider with ChangeNotifier, ProviderHelperClass, TabHelperClass {
     notifyListeners();
   }
 
-  @override
-  void updateTabIndex(int index) {
-    controller.index = index;
-    notifyListeners();
-  }
+  // @override
+  // void updateTabIndex(int index) {
+  //   controller.index = index;
+  //   notifyListeners();
+  // }
 }

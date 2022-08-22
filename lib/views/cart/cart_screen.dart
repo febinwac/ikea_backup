@@ -35,21 +35,10 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     cartProvider = context.read<CartProvider>();
-    // listenController();
     mFocusNode = FocusNode();
     _slideAnimation();
-    // Future.microtask(() => provider
-    //   ..cartInit()
-    //   ..getCartList(context));
     super.initState();
   }
-
-  //
-  // void listenController() {
-  //   cartProvider?.couponTextController.addListener(() {
-  //     cartProvider?.updateCouponCode();
-  //   });
-  // }
 
   void _slideAnimation() {
     _animationController = AnimationController(
@@ -322,7 +311,10 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
           child: CustomButton(
             buttonText: Constants.cartEmptyBtn,
             onPressed: () {
-              homeModel.updateTabIndex(0);
+              // homeModel.updateTabIndex(0);
+              Future.microtask(() {
+                NavRoutes.navRemoveUntilMainPage(context);
+              });
             },
             width: double.maxFinite,
             raisedBtnColour: HexColor(primaryColor),
@@ -348,19 +340,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                         buttonText: Constants.proceedToCheckOut,
                         height: Platform.isIOS ? 60.0.h : 55.0.h,
                         onPressed: () {
-                          if (AppData.accessToken.isNotEmpty) {
-                            if (AppData.storeCode.isNotEmpty) {
-                            } else {
-                              Helpers.showFlushBar(
-                                  Constants.selectLocationToContinue,
-                                  context,
-                                  Icons.sms_failed_outlined);
-
-                              ///  Navigate to location
-                            }
-                          } else {
-                            /// Navigate to login
-                          }
+                          NavRoutes.navToSelectAddressScreen(context,withNav: false);
                         },
                       ),
                     ),
